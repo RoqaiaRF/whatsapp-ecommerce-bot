@@ -108,9 +108,7 @@ sw.*
 # public/
 
 client_secret.json
-yarn.lock
-*.lock
-package-lock.json
+
 *.zip
 
 .roughwork.txt
