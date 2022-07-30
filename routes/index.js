@@ -13,7 +13,7 @@ const EcommerceStore = require('./../utils/ecommerce_store.js');
 let Store = new EcommerceStore();
 const CustomerSession = new Map();
 
-router.get('/meta_wa_callbackurl', (req, res) => {
+router.get('/test', (req, res) => {
     try {
         console.log('GET: Someone is pinging me!');
 
@@ -23,10 +23,15 @@ router.get('/meta_wa_callbackurl', (req, res) => {
 
         if (
             mode &&
-            token &&
+            token && 
             mode === 'subscribe' &&
-            process.env.Meta_WA_VerifyToken === token
-        ) {
+            process.env.Meta_WA_VerifyToken == token
+        ) {  console.log("token: ",token)
+            console.log("Meta_WA_VerifyToken: ",process.env.Meta_WA_VerifyToken)
+            console.log("challenge: ", challenge)
+            console.log("mode: ", mode)
+
+
             return res.status(200).send(challenge);
         } else {
             return res.sendStatus(403);
@@ -37,7 +42,37 @@ router.get('/meta_wa_callbackurl', (req, res) => {
     }
 });
 
-router.post('/meta_wa_callbackurl', async (req, res) => {
+
+////////////
+
+router.get("/", (req, res) => {
+    /**
+     * UPDATE YOUR VERIFY TOKEN
+     *This will be the Verify Token value when you set up webhook
+    **/
+    const verify_token = process.env.Meta_WA_VerifyToken;
+  
+    // Parse params from the webhook verification request
+    let mode = req.query["hub.mode"];
+    let token = req.query["hub.verify_token"];
+    let challenge = req.query["hub.challenge"];
+    console.log("Verify Token:", verify_token);
+    // Check if a token and mode were sent
+    if (mode && token) {
+      // Check the mode and token sent are correct
+      if (mode === "subscribe" && token === verify_token) {
+        // Respond with 200 OK and challenge token from the request
+        console.log("WEBHOOK_VERIFIED");
+        res.status(200).send(challenge);
+      } else {
+        // Responds with '403 Forbidden' if verify tokens do not match
+        res.sendStatus(403);
+      }
+    }
+  });
+/////////////
+
+router.post('/', async (req, res) => {
     console.log('POST: Someone is pinging me!');
     try {
         let data = Whatsapp.parseMessage(req.body);
